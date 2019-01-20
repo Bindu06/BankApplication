@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Model 
 {
@@ -148,14 +149,20 @@ public class Model
 	{
 		try
 		{
-			pstmt=con.prepareStatement("update BANK1 set BALANCE = BALANCE - ? where ACCNO = ?");
+			pstmt=con.prepareStatement("update BANK1 set BALANCE = BALANCE - ? where ACCNO = ?");     //sender
 			pstmt.setInt(1, transamt);
 			pstmt.setInt(2, accno);
 			pstmt.executeUpdate();
 			
-			pstmt=con.prepareStatement("update BANK1 set BALANCE = BALANCE + ? where ACCNO = ?");
+			pstmt=con.prepareStatement("update BANK1 set BALANCE = BALANCE + ? where ACCNO = ?");   //reciepient
 			pstmt.setInt(1, transamt);
 			pstmt.setInt(2, tpaccno);
+			pstmt.executeUpdate();
+			
+			
+			pstmt=con.prepareStatement("insert into TRANSACTION values(?,?)");
+			pstmt.setInt(1, accno);
+			pstmt.setInt(2, transamt);
 			pstmt.executeUpdate();
 			return true;
 			}
@@ -220,7 +227,27 @@ public class Model
 		}
 		return false;
 	}
+
+	ArrayList statement()
+	{
+		try
+		{
+			pstmt=con.prepareStatement("select * from TRANSACTION where ACCNO=?");
+			pstmt.setInt(1, accno);
+			res=pstmt.executeQuery();
+			ArrayList al=new ArrayList();
+			while(res.next()==true)
+			{
+				al.add(res.getInt(2));
+			}
+			return al;        //multiple values
+	}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
-	
 	
 	
